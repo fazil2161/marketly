@@ -55,25 +55,9 @@ const authLimiter = rateLimit({
 });
 app.use('/api/auth', authLimiter);
 
-// CORS configuration
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      process.env.FRONTEND_URL,
-      // Add your Render frontend URL here
-    ].filter(Boolean);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+// CORS configuration for single service deployment
+app.use(cors({
+  origin: true, // Allow all origins for now to fix the issue
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -87,9 +71,7 @@ const corsOptions = {
     'Pragma'
   ],
   exposedHeaders: ['Authorization']
-};
-
-app.use(cors(corsOptions));
+}));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
