@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 import authAPI from '../services/authAPI';
 
 const AuthContext = createContext();
@@ -144,6 +145,8 @@ export const AuthProvider = ({ children }) => {
         }
       });
 
+      toast.success('Login successful');
+
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
@@ -163,6 +166,8 @@ export const AuthProvider = ({ children }) => {
         type: AUTH_ACTIONS.LOGIN_FAILURE,
         payload: errorMessage
       });
+      
+      toast.error(errorMessage);
       
       return { success: false, error: errorMessage };
     }
@@ -189,6 +194,8 @@ export const AuthProvider = ({ children }) => {
         }
       });
 
+      toast.success('Registration successful');
+
       return { success: true };
     } catch (error) {
       console.error('Registration error:', error);
@@ -209,6 +216,8 @@ export const AuthProvider = ({ children }) => {
         payload: errorMessage
       });
       
+      toast.error(errorMessage);
+      
       return { success: false, error: errorMessage };
     }
   };
@@ -218,6 +227,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     dispatch({ type: AUTH_ACTIONS.LOGOUT });
+
+    toast.success('Logout successful');
   };
 
   // Update profile function
@@ -228,6 +239,7 @@ export const AuthProvider = ({ children }) => {
         type: AUTH_ACTIONS.UPDATE_PROFILE,
         payload: response.data.data.user
       });
+      toast.success('Profile update successful');
       return { success: true };
     } catch (error) {
       console.error('Profile update error:', error);
@@ -247,6 +259,7 @@ export const AuthProvider = ({ children }) => {
         type: AUTH_ACTIONS.LOGIN_FAILURE,
         payload: errorMessage
       });
+      toast.error(errorMessage);
       return { success: false, error: errorMessage };
     }
   };

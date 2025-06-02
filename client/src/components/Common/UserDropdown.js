@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   UserIcon, 
@@ -8,9 +8,11 @@ import {
   ArrowRightOnRectangleIcon,
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
+import LoadingSpinner from './LoadingSpinner';
 
 const UserDropdown = ({ user, onClose, onLogout }) => {
   const dropdownRef = useRef(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -24,6 +26,18 @@ const UserDropdown = ({ user, onClose, onLogout }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [onClose]);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await onLogout();
+      onClose();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   const menuItems = [
     {
@@ -117,16 +131,22 @@ const UserDropdown = ({ user, onClose, onLogout }) => {
       {/* Logout */}
       <div className="border-t border-gray-200 py-2">
         <button
-          onClick={() => {
-            onLogout();
-            onClose();
-          }}
-          className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <ArrowRightOnRectangleIcon className="w-5 h-5 text-gray-400 mr-3" />
+          {isLoggingOut ? (
+            <LoadingSpinner size="sm" className="w-5 h-5 text-gray-400 mr-3" />
+          ) : (
+            <ArrowRightOnRectangleIcon className="w-5 h-5 text-gray-400 mr-3" />
+          )}
           <div className="flex-1 text-left">
-            <p className="font-medium">Sign out</p>
-            <p className="text-xs text-gray-500">Sign out of your account</p>
+            <p className="font-medium">
+              {isLoggingOut ? 'Signing out...' : 'Sign out'}
+            </p>
+            <p className="text-xs text-gray-500">
+              {isLoggingOut ? 'Please wait...' : 'Sign out of your account'}
+            </p>
           </div>
         </button>
       </div>

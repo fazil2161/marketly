@@ -57,7 +57,25 @@ app.use('/api/auth', authLimiter);
 
 // CORS configuration for single service deployment
 app.use(cors({
-  origin: true, // Allow all origins for now to fix the issue
+  origin: function (origin, callback) {
+    // Allow requests with no origin (same-origin requests from single service deployment)
+    if (!origin) return callback(null, true);
+    
+    // Define allowed origins
+    const allowedOrigins = [
+      'https://marketly-rsja.onrender.com', // Your deployed domain
+      'http://localhost:3000', // Development frontend
+      'http://localhost:3001', // Alternative development port
+      process.env.FRONTEND_URL, // Custom frontend URL from env
+    ].filter(Boolean);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('⚠️ CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
