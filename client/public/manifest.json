@@ -1,0 +1,15 @@
+{
+  "short_name": "Marketly",
+  "name": "Marketly - Premium E-commerce Platform",
+  "description": "Your premier e-commerce platform for quality products at great prices.",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1DA1F2",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["shopping", "e-commerce", "marketplace"],
+  "lang": "en-US",
+  "dir": "ltr"
+} 
