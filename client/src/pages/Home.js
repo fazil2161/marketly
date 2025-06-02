@@ -3,14 +3,11 @@ import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { 
   ArrowRightIcon, 
-  StarIcon, 
-  ShoppingCartIcon,
   TruckIcon,
   ShieldCheckIcon,
   CurrencyDollarIcon,
   PhoneIcon
 } from '@heroicons/react/24/outline';
-import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import * as productAPI from '../services/productAPI';
 import { useCart } from '../context/CartContext';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
@@ -40,15 +37,15 @@ const Home = () => {
     }
   );
 
-  // Fetch best sellers
-  const { data: bestSellers, isLoading: bestSellersLoading } = useQuery(
-    'best-sellers',
-    () => productAPI.getBestSellers(8),
-    {
-      select: (response) => response.data.data,
-      staleTime: 10 * 60 * 1000,
-    }
-  );
+  // Fetch best sellers - commented out as not currently used
+  // const { data: bestSellers, isLoading: bestSellersLoading } = useQuery(
+  //   'best-sellers',
+  //   () => productAPI.getBestSellers(8),
+  //   {
+  //     select: (response) => response.data.data,
+  //     staleTime: 10 * 60 * 1000,
+  //   }
+  // );
 
   // Hero carousel slides
   const slides = [

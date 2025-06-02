@@ -15,7 +15,7 @@ import LoadingSpinner from '../components/Common/LoadingSpinner';
 import { toast } from 'react-hot-toast';
 
 const Wishlist = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { addToCart } = useCart();
   const navigate = useNavigate();
   const [wishlistItems, setWishlistItems] = useState([]);
