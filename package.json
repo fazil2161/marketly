@@ -1,31 +1,29 @@
 {
   "name": "marketly-fullstack",
   "version": "1.0.0",
-  "description": "Marketly E-Commerce Platform - Full Stack Application",
-  "main": "index.js",
+  "description": "Full-stack Marketly e-commerce application",
+  "main": "server/server.js",
   "scripts": {
+    "start": "node server/server.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && npm run dev",
     "client": "cd client && npm start",
+    "build": "cd client && npm install && npm run build",
     "install-server": "cd server && npm install",
     "install-client": "cd client && npm install",
     "install-all": "npm run install-server && npm run install-client",
-    "build": "cd client && npm run build",
-    "start": "cd server && npm start"
+    "heroku-postbuild": "npm run install-all && npm run build"
   },
   "keywords": [
     "ecommerce",
+    "fullstack",
     "react",
     "nodejs",
-    "mongodb",
-    "mern"
+    "mongodb"
   ],
-  "author": "Marketly Team",
+  "author": "Fazil",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
-  },
-  "dependencies": {
-    "mongodb": "^6.16.0"
   }
 }

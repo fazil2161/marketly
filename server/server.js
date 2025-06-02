@@ -6,6 +6,7 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
+const path = require('path');
 require('dotenv').config();
 
 // Import routes
@@ -74,7 +75,18 @@ const corsOptions = {
     }
   },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'Cache-Control',
+    'Pragma'
+  ],
+  exposedHeaders: ['Authorization']
 };
 
 app.use(cors(corsOptions));
@@ -113,17 +125,29 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Default route
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Welcome to Marketly API',
-    version: '1.0.0',
-    documentation: '/api/health'
+// Serve React frontend static files
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the React app build directory
+  app.use(express.static(path.join(__dirname, '../client/build')));
+  
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
   });
-});
+} else {
+  // Development fallback
+  app.get('/', (req, res) => {
+    res.json({
+      message: 'Welcome to Marketly API',
+      version: '1.0.0',
+      documentation: '/api/health',
+      note: 'Frontend is served separately in development mode'
+    });
+  });
+}
 
-// Handle 404 errors
-app.all('*', (req, res) => {
+// Handle 404 errors for API routes only
+app.all('/api/*', (req, res) => {
   res.status(404).json({
     status: 'error',
     message: `Route ${req.originalUrl} not found`
