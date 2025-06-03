@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 // Create axios instance
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api'),
-  timeout: 30000,
+  timeout: 60000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -31,6 +31,14 @@ api.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+
+    // Handle timeout errors with retry
+    if (error.code === 'ECONNABORTED' && error.message.includes('timeout') && !originalRequest._retryCount) {
+      originalRequest._retryCount = 1;
+      console.log('⏰ Request timed out, retrying...');
+      toast.error('Request timed out, retrying...');
+      return api(originalRequest);
+    }
 
     // Handle 401 errors (unauthorized)
     if (error.response?.status === 401 && !originalRequest._retry) {

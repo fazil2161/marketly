@@ -152,6 +152,52 @@ router.get('/debug/users', async (req, res) => {
   }
 });
 
+// Auth health check endpoint
+router.get('/health', async (req, res) => {
+  try {
+    const startTime = Date.now();
+    
+    // Test database connection
+    const mongoose = require('mongoose');
+    const dbStatus = mongoose.connection.readyState;
+    const dbStatusText = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting'
+    };
+    
+    // Test user model access
+    const User = require('../models/User');
+    const userCount = await User.countDocuments();
+    
+    const responseTime = Date.now() - startTime;
+    
+    res.json({
+      success: true,
+      message: 'Auth system is healthy',
+      data: {
+        database: {
+          status: dbStatusText[dbStatus] || 'unknown',
+          readyState: dbStatus,
+          userCount: userCount
+        },
+        responseTime: `${responseTime}ms`,
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+      }
+    });
+  } catch (error) {
+    console.error('Auth health check failed:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Auth system unhealthy',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Public routes
 router.post('/register', validateRegistration, register);
 router.post('/login', validateLogin, login);

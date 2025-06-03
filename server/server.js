@@ -48,7 +48,7 @@ app.use('/api/', limiter);
 // Auth-specific rate limiting
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 5 : 50, // Much more lenient in development
+  max: process.env.NODE_ENV === 'production' ? 20 : 50, // Increased from 5 to 20 for production
   message: 'Too many authentication attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,

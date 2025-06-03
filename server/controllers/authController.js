@@ -56,6 +56,9 @@ const register = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const login = asyncHandler(async (req, res) => {
+  const startTime = Date.now();
+  console.log('🔐 Login attempt started at:', new Date().toISOString());
+  
   const { email, password } = req.body;
 
   // Validate email and password
@@ -63,36 +66,64 @@ const login = asyncHandler(async (req, res) => {
     throw createError.badRequest('Please provide email and password');
   }
 
+  console.log('🔍 Looking up user:', email);
+  
   // Check for user and include password field
   const user = await User.findByEmail(email).select('+password');
+  const userLookupTime = Date.now();
+  console.log('⏱️ User lookup took:', userLookupTime - startTime, 'ms');
+  
   if (!user) {
+    console.log('❌ User not found:', email);
     throw createError.unauthorized('Invalid credentials');
   }
 
   // Check if user is active
   if (!user.isActive) {
+    console.log('❌ User account deactivated:', email);
     throw createError.unauthorized('Account is deactivated');
   }
 
+  console.log('🔒 Checking password for user:', email);
+  
   // Check if password matches
   const isMatch = await user.matchPassword(password);
+  const passwordCheckTime = Date.now();
+  console.log('⏱️ Password check took:', passwordCheckTime - userLookupTime, 'ms');
+  
   if (!isMatch) {
+    console.log('❌ Invalid password for user:', email);
     throw createError.unauthorized('Invalid credentials');
   }
 
+  console.log('🎫 Generating tokens for user:', email);
+  
   // Generate tokens
   const token = user.getSignedJwtToken();
   const refreshToken = user.getRefreshToken();
+  const tokenGenerationTime = Date.now();
+  console.log('⏱️ Token generation took:', tokenGenerationTime - passwordCheckTime, 'ms');
 
+  console.log('💾 Saving refresh token for user:', email);
+  
   // Save refresh token
   user.refreshToken = refreshToken;
   await user.save({ validateBeforeSave: false });
+  const saveTime = Date.now();
+  console.log('⏱️ Save refresh token took:', saveTime - tokenGenerationTime, 'ms');
 
+  console.log('📝 Updating last login for user:', email);
+  
   // Update last login
   await user.updateLastLogin();
+  const lastLoginUpdateTime = Date.now();
+  console.log('⏱️ Last login update took:', lastLoginUpdateTime - saveTime, 'ms');
 
   // Remove password from response
   const userResponse = user.toSafeObject();
+  
+  const totalTime = Date.now() - startTime;
+  console.log('✅ Login successful for user:', email, 'Total time:', totalTime, 'ms');
 
   res.status(200).json({
     success: true,
